@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk, BOTH
 from tkinter import messagebox
+
 import cx_Oracle
 from datetime import date
 #from PIL import ImageTk
@@ -8,6 +9,7 @@ import sqlite3
 import csv
 
 from tkcalendar import Calendar, DateEntry
+ 
 
 class MainFrame:
 
@@ -69,12 +71,14 @@ class MainFrame:
         
         f_date=Label(Detail_Frame, text="Санадан", bg="#fff", fg="black", font=("times new roman", 12, "bold"))
         f_date.grid(row=0, column=2, pady=10, padx=10, sticky="w")
-        cal = DateEntry(Detail_Frame, width=10, background='darkblue',foreground='white',  borderwidth=2,font=("times new roman",10, "bold"))
+         #calendar 1
+        cal = DateEntry(Detail_Frame,  selectmode="day", width=10, background='darkblue',foreground='white',  borderwidth=2,font=("times new roman",10, "bold"))
         cal.grid(row=0, column=2, pady=10, padx=90, sticky="w")
 
         s_date=Label(Detail_Frame, text="Санагача", bg="#fff", fg="black", font=("times new roman", 12, "bold"))
         s_date.grid(row=0, column=3, pady=10, padx=10, sticky="w")
-        cal = DateEntry(Detail_Frame, width=10, background='darkblue',foreground='white',  borderwidth=2, font=("times new roman",10, "bold"))
+        #calendar 2
+        cal = DateEntry(Detail_Frame,  selectmode="day",  width=10, background='darkblue',foreground='white',  borderwidth=2, font=("times new roman",10, "bold"))
         cal.grid(row=0, column=3, pady=10, padx=90, sticky="w")
 
 
@@ -86,8 +90,8 @@ class MainFrame:
 
         
 
-        Button(Detail_Frame, text="Қидириш", command=self.search_data, bg="#2a4291", fg="#fff", width=10, font=("times new roman", 10, "bold")).grid(row=0, column=4, pady=10, padx=10,)
-        Button(Detail_Frame, text="Excelга сақлаш", command=lambda: write_tocsv(rows), bg="#2a4291", fg="#fff", width=15, font=("times new roman", 10, "bold")).grid(row=0, column=5, pady=10, padx=10,)
+        Button(Detail_Frame, text="Қидириш", command=self.search_data,  bg="#2a4291", fg="#fff", width=10, font=("times new roman", 10, "bold")).grid(row=0, column=4, pady=10, padx=10,)
+        Button(Detail_Frame, text="Excelга сақлаш", command=lambda: write_tocsv(self.search_mfo.get()), bg="#2a4291", fg="#fff", width=15, font=("times new roman", 10, "bold")).grid(row=0, column=5, pady=10, padx=10,)
         #======Tabel_Frame=============================
         
         
@@ -148,11 +152,22 @@ class MainFrame:
             con.close()
 
 #write to CVS Excel function
-def write_tocsv(rows):
-     with open('customers.csv', 'a' ) as f:
+def write_tocsv(mfo):
+    import mysql.connector
+    con = mysql.connector.connect(host="localhost", user="root", password="", database="qqb_project")
+    cur = con.cursor()
+        
+    #print(self.search_mfo.get())
+    #print(self.search_invoice.get())
+
+    cur.execute(f"select * from qqb where mfo='{mfo}';")
+    rows=cur.fetchall()
+    with open('customers.csv','a', newline='') as f:
          w = csv.writer(f, dialect='excel')
-         w.writerow(rows)
-         search_data(rows)
+         for row in rows:
+            w.writerow(row)
+         #search_data(rows)
+         
 def insert_data(self):
     import mysql.connector
     con = mysql.connector.connect(host="localhost", user="root", password="", database="qqb_project")
@@ -179,7 +194,7 @@ def insert_data(self):
 
 
     
-def Ok():
+def Password_func(event):
     password = e2.get()
 
     if(password == ""):
@@ -193,7 +208,7 @@ def Ok():
     else :
         messagebox.showinfo("", "Parol xato")
 
-
+    
 def main_screen():
     global root    
     root = Tk()
@@ -214,8 +229,10 @@ def main_screen():
 
     e2 = Entry(root)
     e2.place( x=90, y=250, width=200, height = 30,  )
-    e2.config(show="*", font=("times new roman", 25, "bold"), bg = "#c9c9c9",)      
-    Button(root, text="Kirish", command=Ok, height = 1, width = 10, fg="#fff", bg="#2a4291", font=("times new roman", 18, "bold")).place(x=115, y=350)
+    e2.config(show="*", font=("times new roman", 25, "bold"), bg = "#c9c9c9",)    
+       
+    Button(root, text="Kirish", command=Password_func, height = 1, width = 10, fg="#fff", bg="#2a4291", font=("times new roman", 18, "bold")).place(x=115, y=350)
+    root.bind('<Return>', Password_func )
     root.mainloop()
 
 main_screen()    
