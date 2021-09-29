@@ -1,5 +1,6 @@
 # QQBank_project
-QQBank desktop application in python 
+
+
 def search_data(self):
         
         con = cx_Oracle.connect("ibs", "ibs", "172.16.49.218/iabs")
